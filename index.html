@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="he">
+<head>
+    <meta charset="UTF-8">
+    <title>תכנון מסלול אופטימלי</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+    <link rel="stylesheet" href="styles.css"/>
+</head>
+<body>
+
+    <h1>תכנון מסלול אופטימלי</h1>
+    <h3>תכנן את המסלול הקצר והמהיר ביותר</h3>
+
+    <div class="input-wrapper">
+        <label>כתובת יציאה:</label>
+        <input id="startAddress" type="text" placeholder="מאיפה יוצאים">
+    </div>
+
+    <div class="input-wrapper">
+        <label>כתובת חזרה:</label>
+        <input id="endAddress" type="text" placeholder="לאן חוזרים">
+    </div>
+
+    <h2>עצירות ביניים:</h2>
+    <div id="addresses-container"></div>
+
+    <button id="addAddressBtn">➕ הוסף כתובת חדשה</button>
+    <button id="drawRouteBtn">חשב מסלול</button>
+
+    <ol id="routeList"></ol>
+
+    <div id="map"></div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAnTZ17FYB-LhAQwxMkTd7yPUj8HSns2Pw&libraries=places&language=he"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Caveat&family=David+Libre:wght@700&display=swap" rel="stylesheet">
+
+    <script src="app.js"></script>
+</body>
+</html>
