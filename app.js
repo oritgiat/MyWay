@@ -62,17 +62,6 @@ async function geocode(inputElement) {
     };
 }
 
-    // קריאה ל-Google Geocoding API
-    const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(address)}&key=${GOOGLE_API_KEY}&language=he`;
-    const res = await fetch(url);
-    const data = await res.json();
-
-    if (!data.results || data.results.length === 0) return null;
-
-    const loc = data.results[0].geometry.location;
-    return { lat: loc.lat, lon: loc.lng, address: data.results[0].formatted_address };
-}
-
 
 //------------------------------------------------------
 // 3. חישוב מרחק בין שתי נקודות
@@ -329,3 +318,4 @@ const stops = (await Promise.all(
 
 
 });
+
