@@ -20,10 +20,7 @@ function attachAutocomplete(input) {
 }
 
 async function geocode(inputElement) {
-
     const address = inputElement.value;
-
-    // אם כבר יש קואורדינטות מ-autocomplete
     if (inputElement.dataset.lat && inputElement.dataset.lng) {
         return {
             lat: parseFloat(inputElement.dataset.lat),
@@ -304,5 +301,6 @@ const stops = (await Promise.all(
 
 
 });
+
 
 
