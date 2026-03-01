@@ -19,20 +19,6 @@ function attachAutocomplete(input) {
     });
 }
 
-//------------------------------------------------------
-// 2. גיאוקוד לכתובת
-//------------------------------------------------------
-// async function geocode(address) {
-//     // אם כבר יש קואורדינטות משדה autocomplete
-//     const input = document.querySelector(`input[value="${address}"]`);
-//     if (input && input.dataset.lat && input.dataset.lng) {
-//         return {
-//             lat: parseFloat(input.dataset.lat),
-//             lon: parseFloat(input.dataset.lng),
-//             address: address
-//         };
-//     }
-
 async function geocode(inputElement) {
 
     const address = inputElement.value;
@@ -318,4 +304,5 @@ const stops = (await Promise.all(
 
 
 });
+
 
