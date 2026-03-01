@@ -22,16 +22,45 @@ function attachAutocomplete(input) {
 //------------------------------------------------------
 // 2. גיאוקוד לכתובת
 //------------------------------------------------------
-async function geocode(address) {
-    // אם כבר יש קואורדינטות משדה autocomplete
-    const input = document.querySelector(`input[value="${address}"]`);
-    if (input && input.dataset.lat && input.dataset.lng) {
+// async function geocode(address) {
+//     // אם כבר יש קואורדינטות משדה autocomplete
+//     const input = document.querySelector(`input[value="${address}"]`);
+//     if (input && input.dataset.lat && input.dataset.lng) {
+//         return {
+//             lat: parseFloat(input.dataset.lat),
+//             lon: parseFloat(input.dataset.lng),
+//             address: address
+//         };
+//     }
+
+async function geocode(inputElement) {
+
+    const address = inputElement.value;
+
+    // אם כבר יש קואורדינטות מ-autocomplete
+    if (inputElement.dataset.lat && inputElement.dataset.lng) {
         return {
-            lat: parseFloat(input.dataset.lat),
-            lon: parseFloat(input.dataset.lng),
+            lat: parseFloat(inputElement.dataset.lat),
+            lon: parseFloat(inputElement.dataset.lng),
             address: address
         };
     }
+
+    // קריאה ל-Google Geocoding API
+    const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(address)}&key=${GOOGLE_API_KEY}&language=he`;
+    const res = await fetch(url);
+    const data = await res.json();
+
+    if (!data.results || data.results.length === 0) return null;
+
+    const loc = data.results[0].geometry.location;
+
+    return {
+        lat: loc.lat,
+        lon: loc.lng,
+        address: data.results[0].formatted_address
+    };
+}
 
     // קריאה ל-Google Geocoding API
     const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(address)}&key=${GOOGLE_API_KEY}&language=he`;
@@ -184,9 +213,18 @@ document.getElementById("drawRouteBtn").addEventListener("click", async () => {
                         .filter(a => a.trim() !== "");
 
     // גיאוקוד
-    const start = await geocode(startAddr);
-    const end   = await geocode(endAddr);
-    const stops = (await Promise.all(addresses.map(geocode))).filter(x => x);
+    //const start = await geocode(startAddr);
+    const startInput = document.getElementById("startAddress");
+const endInput   = document.getElementById("endAddress");
+
+const start = await geocode(startInput);
+const end   = await geocode(endInput);
+
+const stops = (await Promise.all(
+    addressInputs.map(input => geocode(input))
+)).filter(x => x);
+   // const end   = await geocode(endAddr);
+   // const stops = (await Promise.all(addresses.map(geocode))).filter(x => x);
 
     if (!start || !end) {
         alert("שגיאה בגיאוקוד של כתובת יציאה או חזרה");
@@ -281,12 +319,12 @@ document.getElementById("drawRouteBtn").addEventListener("click", async () => {
 
         // כפתור וויז
         box.querySelector(".waze-btn").addEventListener("click", () => {
-            window.open(`https://waze.com/ul?ll=${p.lat},${p.lng}&navigate=yes`, "_blank");
-        });
+        window.open(`https://waze.com/ul?ll=${p.lat},${p.lon}&navigate=yes`, "_blank");        });
 
         routeList.appendChild(wrapper);
     });
 }
+
 
 
 
