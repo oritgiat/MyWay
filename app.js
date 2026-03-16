@@ -1,4 +1,4 @@
-const GOOGLE_API_KEY = "AIzaSyAnTZ17FYB-LhAQwxMkTd7yPUj8HSns2Pw";
+const GOOGLE_API_KEY = "AIzaSyDK6yM28KqdSZUAvonDD7tq-hrILHvlfkA";
 
 //------------------------------------------------------
 // 1. פונקציה שמוסיפה יכולת Autocomplete לכל שדה כתובת
