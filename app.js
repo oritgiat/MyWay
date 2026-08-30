@@ -222,29 +222,27 @@ function drawRouteOnMap(routeArr) {
 }
 
 //------------------------------------------------------
-// פתיחת ניווט בוויז - במובייל פותח ישירות את האפליקציה (deep link),
-// עם נפילה לקישור הרגיל אם האפליקציה לא מותקנת (למשל בדסקטופ)
+// פתיחת ניווט בוויז - פותח ישירות את אפליקציית וויז אם היא מותקנת
 //------------------------------------------------------
 function openWaze(lat, lon) {
-    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-    const appUrl = `waze://?ll=${lat},${lon}&navigate=yes`;
+    const ua = navigator.userAgent;
+    const isAndroid = /Android/i.test(ua);
+    const isIOS = /iPhone|iPad|iPod/i.test(ua);
     const webUrl = `https://waze.com/ul?ll=${lat},${lon}&navigate=yes`;
 
-    if (isMobile) {
-        // ננסה לפתוח את האפליקציה; אם היא לא נפתחה תוך זמן קצר, ניפול לאתר
-        const fallback = setTimeout(() => {
-            window.location.href = webUrl;
-        }, 1500);
-
-        // אם המשתמש עזב את הדף (האפליקציה נפתחה), מבטלים את הגיבוי
-        window.addEventListener("pagehide", () => clearTimeout(fallback), { once: true });
-        document.addEventListener("visibilitychange", () => {
-            if (document.hidden) clearTimeout(fallback);
-        }, { once: true });
-
-        window.location.href = appUrl;
+    if (isAndroid) {
+        // Android intent: פותח את אפליקציית וויז ישירות, ואם לא מותקנת -
+        // נופל אוטומטית לגרסת הווב (browser_fallback_url). ללא טיימרים.
+        const intentUrl =
+            `intent://waze.com/ul?ll=${lat},${lon}&navigate=yes#Intent;` +
+            `scheme=https;package=com.waze;` +
+            `S.browser_fallback_url=${encodeURIComponent(webUrl)};end`;
+        window.location.href = intentUrl;
+    } else if (isIOS) {
+        // iOS: deep link ישיר לאפליקציה
+        window.location.href = `waze://?ll=${lat},${lon}&navigate=yes`;
     } else {
-        // בדסקטופ - פשוט פותחים את גרסת הווב בכרטיסייה חדשה
+        // דסקטופ: גרסת ווב בכרטיסייה חדשה
         window.open(webUrl, "_blank");
     }
 }
