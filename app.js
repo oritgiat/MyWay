@@ -222,6 +222,34 @@ function drawRouteOnMap(routeArr) {
 }
 
 //------------------------------------------------------
+// פתיחת ניווט בוויז - במובייל פותח ישירות את האפליקציה (deep link),
+// עם נפילה לקישור הרגיל אם האפליקציה לא מותקנת (למשל בדסקטופ)
+//------------------------------------------------------
+function openWaze(lat, lon) {
+    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+    const appUrl = `waze://?ll=${lat},${lon}&navigate=yes`;
+    const webUrl = `https://waze.com/ul?ll=${lat},${lon}&navigate=yes`;
+
+    if (isMobile) {
+        // ננסה לפתוח את האפליקציה; אם היא לא נפתחה תוך זמן קצר, ניפול לאתר
+        const fallback = setTimeout(() => {
+            window.location.href = webUrl;
+        }, 1500);
+
+        // אם המשתמש עזב את הדף (האפליקציה נפתחה), מבטלים את הגיבוי
+        window.addEventListener("pagehide", () => clearTimeout(fallback), { once: true });
+        document.addEventListener("visibilitychange", () => {
+            if (document.hidden) clearTimeout(fallback);
+        }, { once: true });
+
+        window.location.href = appUrl;
+    } else {
+        // בדסקטופ - פשוט פותחים את גרסת הווב בכרטיסייה חדשה
+        window.open(webUrl, "_blank");
+    }
+}
+
+//------------------------------------------------------
 // מחיקת עצירת ביניים מרשימת התוצאות ומחשב מחדש (יציאה/סיום לא נמחקים)
 //------------------------------------------------------
 function deletePoint(point) {
@@ -295,9 +323,7 @@ function renderRouteList(routeArr) {
             <img class="waze-icon" src="icons/waze.svg" alt="Waze" width="20" height="20">
             <span>נווט בוויז</span>
         `;
-        wazeBtn.addEventListener("click", () => {
-            window.open(`https://waze.com/ul?ll=${p.lat},${p.lon}&navigate=yes`, "_blank");
-        });
+        wazeBtn.addEventListener("click", () => openWaze(p.lat, p.lon));
 
         box.appendChild(addrText);
         box.appendChild(wazeBtn);
