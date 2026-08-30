@@ -2,26 +2,42 @@
 <html lang="he">
 <head>
     <meta charset="UTF-8">
-    <title>תכנון מסלול אופטימלי</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <title>MyWay - מסלול חכם</title>
+    <meta name="description" content="תכנון המסלול הקצר ביותר בין כמה עצירות - למשלוחים, הפצה וטיולים. בונה את הסדר האופטימלי עם ניווט ישיר בוויז.">
+    <meta name="keywords" content="תכנון מסלול, מסלול אופטימלי, משלוחים, הפצה, טיולים, עצירות, ניווט, וויז, נסיעות">
+    <meta property="og:title" content="MyWay - מסלול חכם">
+    <meta property="og:description" content="תכנון המסלול הקצר ביותר בין כמה עצירות - למשלוחים, הפצה וטיולים.">
+    <meta property="og:type" content="website">
+
+    <!-- PWA -->
+    <link rel="manifest" href="manifest.json"/>
+    <meta name="theme-color" content="#7b68ee"/>
+    <meta name="mobile-web-app-capable" content="yes"/>
+    <meta name="apple-mobile-web-app-capable" content="yes"/>
+    <meta name="apple-mobile-web-app-status-bar-style" content="default"/>
+    <meta name="apple-mobile-web-app-title" content="MyWay"/>
+    <link rel="apple-touch-icon" href="icons/icon-192.png"/>
+
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
     <link rel="stylesheet" href="styles.css"/>
 </head>
 <body>
 
-    <h1>תכנון מסלול אופטימלי</h1>
-    <h3>תכנן את המסלול הקצר והמהיר ביותר</h3>
+    <h1>MyWay</h1>
+    <h3>תכנון המסלול הקצר ביותר בין כל העצירות שלך</h3>
 
     <div class="input-wrapper">
-        <label>כתובת יציאה:</label>
+        <label>כתובת יציאה</label>
         <input id="startAddress" type="text" placeholder="מאיפה יוצאים">
     </div>
 
     <div class="input-wrapper">
-        <label>כתובת חזרה:</label>
+        <label>כתובת חזרה</label>
         <input id="endAddress" type="text" placeholder="לאן חוזרים">
     </div>
 
-    <h2>עצירות ביניים:</h2>
+    <h2>עצירות ביניים</h2>
     <div id="addresses-container"></div>
 
     <button id="addAddressBtn">➕ הוסף כתובת חדשה</button>
@@ -35,6 +51,17 @@
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDK6yM28KqdSZUAvonDD7tq-hrILHvlfkA&libraries=places&language=he"></script>
     <link href="https://fonts.googleapis.com/css2?family=Caveat&family=David+Libre:wght@700&display=swap" rel="stylesheet">
 
-    <script src="app.js" type="module"></script></body>
+    <script src="app.js" type="module"></script>
+
+    <!-- רישום ה-service worker (נדרש כדי שהאתר ייחשב PWA תקין) -->
+    <script>
+        if ("serviceWorker" in navigator) {
+            window.addEventListener("load", () => {
+                navigator.serviceWorker.register("service-worker.js")
+                    .catch(err => console.warn("Service worker registration failed:", err));
+            });
+        }
+    </script>
+</body>
 </html>
 
