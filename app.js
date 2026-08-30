@@ -5,17 +5,25 @@ const GOOGLE_API_KEY = "AIzaSyDK6yM28KqdSZUAvonDD7tq-hrILHvlfkA";
 //------------------------------------------------------
 function attachAutocomplete(input) {
     const autocomplete = new google.maps.places.Autocomplete(input, {
-        types: ["address"],
+        // ללא types => מחזיר כתובות, עסקים, תחנות ונקודות עניין (POI)
         componentRestrictions: { country: "il" } // ישראל בלבד
     });
-    autocomplete.setFields(["formatted_address", "geometry"]);
+    autocomplete.setFields(["name", "formatted_address", "geometry"]);
 
     autocomplete.addListener("place_changed", () => {
         const place = autocomplete.getPlace();
         if (!place.geometry) return;
         input.dataset.lat = place.geometry.location.lat();
         input.dataset.lng = place.geometry.location.lng();
-        input.value = place.formatted_address;
+
+        // אם למקום יש שם (תחנה/עסק/POI) שאינו זהה לכתובת, נציג "שם, כתובת"
+        const name = place.name || "";
+        const address = place.formatted_address || "";
+        if (name && address && !address.startsWith(name)) {
+            input.value = `${name}, ${address}`;
+        } else {
+            input.value = address || name;
+        }
     });
 }
 
@@ -158,6 +166,7 @@ document.getElementById("addAddressBtn").addEventListener("click", () => {
     container.appendChild(input);
 
     attachAutocomplete(input);
+    input.focus();
 });
 // מפה ראשונית כבר מהטעינה
 window.map = L.map("map").setView([31.5, 34.8], 8); // מרכז על ישראל
@@ -167,90 +176,64 @@ L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
 }).addTo(window.map);
 
 //------------------------------------------------------
-// 8. חישוב המסלול וציור על מפה
+// 8. State של המסלול הנוכחי (כדי לאפשר עריכה/מחיקה וחישוב מחדש)
 //------------------------------------------------------
-document.getElementById("drawRouteBtn").addEventListener("click", async () => {
+// כל נקודה: { lat, lon, address, role: "start" | "stop" | "end" }
+let routePoints = [];
 
-    const startAddr = document.getElementById("startAddress").value;
-    const endAddr   = document.getElementById("endAddress").value;
+//------------------------------------------------------
+// חישוב מחדש: לוקח start+end ומחשב מחדש את הסדר האופטימלי של העצירות,
+// ואז מרנדר את הרשימה והמפה. משמש גם בלחיצה הראשונה וגם אחרי עריכה/מחיקה.
+//------------------------------------------------------
+function recomputeAndRender() {
+    const start = routePoints.find(p => p.role === "start");
+    const end   = routePoints.find(p => p.role === "end");
+    const stops = routePoints.filter(p => p.role === "stop");
 
-    if (!startAddr || !endAddr) {
-        alert("יש למלא כתובת יציאה וכתובת חזרה");
-        return;
-    }
+    if (!start || !end) return;
 
-    const addressInputs = [...document.querySelectorAll(".address")];
-    const addresses = addressInputs
-                        .map(i => i.value)
-                        .filter(a => a.trim() !== "");
+    const bestStops = findBestOrder(start, end, stops) || [];
 
-    // גיאוקוד
-    //const start = await geocode(startAddr);
-    const startInput = document.getElementById("startAddress");
-const endInput   = document.getElementById("endAddress");
+    // שומרים את הסדר האופטימלי החדש של העצירות ב-state
+    routePoints = [start, ...bestStops, end];
 
-const start = await geocode(startInput);
-const end   = await geocode(endInput);
+    renderRouteList(routePoints);
+    drawRouteOnMap(routePoints);
+}
 
-const stops = (await Promise.all(
-    addressInputs.map(input => geocode(input))
-)).filter(x => x);
-   // const end   = await geocode(endAddr);
-   // const stops = (await Promise.all(addresses.map(geocode))).filter(x => x);
+//------------------------------------------------------
+// ציור המסלול על המפה
+//------------------------------------------------------
+function drawRouteOnMap(routeArr) {
+    if (window.routeLayer) window.routeLayer.remove();
+    if (window.markers) window.markers.forEach(m => m.remove());
 
-    if (!start || !end) {
-        alert("שגיאה בגיאוקוד של כתובת יציאה או חזרה");
-        return;
-    }
+    const latlngs = routeArr.map(p => [p.lat, p.lon]);
 
-    // חישוב מסלול אופטימלי
-    const bestStops = findBestOrder(start, end, stops);
-
-    // מסלול סופי
-    const fullRoute = [start, ...bestStops, end];
-
-    //--------------------------------------------------
-    // הצגת רשימת המסלול (OL)
-    //--------------------------------------------------
-    const list = document.getElementById("routeList");
-    list.innerHTML = "";
-
-    fullRoute.forEach(p => {
-        const li = document.createElement("li");
-        li.textContent = p.address;
-        list.appendChild(li);
-    });
-    renderRouteList(fullRoute); 
-
-
-    //--------------------------------------------------
-    // הצגת המסלול על המפה
-    //--------------------------------------------------
-    if (window.routeLayer) {
-        window.routeLayer.remove();
-    }
-
-    const latlngs = fullRoute.map(p => [p.lat, p.lon]);
-
-    // 2. מוסיפים polyline חדש
-    window.routeLayer = L.polyline(latlngs, {color:"blue"}).addTo(window.map);
-
-    // 3. מוחקים markers ישנים
-    if (window.markers) {
-        window.markers.forEach(m => m.remove());
-    }
-
-    // 4. מוסיפים markers חדשים
-    window.markers = fullRoute.map(p => 
-        L.marker([p.lat, p.lon]).addTo(window.map)
-            .bindPopup(p.address)
+    window.routeLayer = L.polyline(latlngs, { color: "blue" }).addTo(window.map);
+    window.markers = routeArr.map(p =>
+        L.marker([p.lat, p.lon]).addTo(window.map).bindPopup(p.address)
     );
 
-    // 5. מתאים את המפה כך שתכסה את כל המסלול
-    const bounds = L.latLngBounds(latlngs);
-    window.map.fitBounds(bounds, {padding: [50, 50]});
+    if (latlngs.length > 0) {
+        const bounds = L.latLngBounds(latlngs);
+        window.map.fitBounds(bounds, { padding: [50, 50] });
+    }
+}
 
-   function renderRouteList(routeArr) {
+//------------------------------------------------------
+// מחיקת עצירת ביניים מרשימת התוצאות ומחשב מחדש (יציאה/סיום לא נמחקים)
+//------------------------------------------------------
+function deletePoint(point) {
+    if (point.role !== "stop") return;
+    routePoints = routePoints.filter(p => p !== point);
+    recomputeAndRender();
+}
+
+//------------------------------------------------------
+// רינדור רשימת המסלול - אייקון מחיקה קטן רק על עצירות הביניים
+//------------------------------------------------------
+function renderRouteList(routeArr) {
     const routeList = document.getElementById("routeList");
     routeList.innerHTML = "";
 
@@ -258,48 +241,105 @@ const stops = (await Promise.all(
         const wrapper = document.createElement("div");
         wrapper.className = "route-wrapper";
 
-        // יציאה/סיום
-        if (index === 0) {
+        // תווית יציאה/סיום
+        if (p.role === "start") {
             const lbl = document.createElement("div");
             lbl.className = "route-label";
             lbl.textContent = "יציאה";
             wrapper.appendChild(lbl);
-        }
-
-        if (index === routeArr.length - 1) {
+        } else if (p.role === "end") {
             const lbl = document.createElement("div");
             lbl.className = "route-label";
             lbl.textContent = "סיום";
             wrapper.appendChild(lbl);
         }
 
-        // חץ ירוק מחוץ לריבוע
-        const arrow = document.createElement("div");
-        arrow.className = "green-arrow";
-        arrow.textContent = "⬇";
-        wrapper.appendChild(arrow);
+        // חץ מודרני מעל הריבוע (לא לפני הנקודה הראשונה)
+        if (index > 0) {
+            const arrow = document.createElement("div");
+            arrow.className = "green-arrow";
+            arrow.innerHTML = `
+                <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
+                    <path d="M12 4v13M6 12l6 6 6-6" fill="none" stroke="currentColor"
+                          stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            `;
+            wrapper.appendChild(arrow);
+        }
 
         // ריבוע הכתובת
         const box = document.createElement("div");
         box.className = "route-item";
-        box.innerHTML = `
-            ${p.address}
-            <br>
-            <button class="waze-btn">נווט בוויז</button>
-        `;
-        wrapper.appendChild(box);
 
-        // כפתור וויז
-        box.querySelector(".waze-btn").addEventListener("click", () => {
-        window.open(`https://waze.com/ul?ll=${p.lat},${p.lon}&navigate=yes`, "_blank");        });
+        // אייקון מחיקה קטן - רק לעצירות ביניים
+        if (p.role === "stop") {
+            const delIcon = document.createElement("button");
+            delIcon.type = "button";
+            delIcon.className = "icon-btn delete-icon";
+            delIcon.title = "מחק עצירה";
+            delIcon.setAttribute("aria-label", "מחק עצירה");
+            delIcon.textContent = "🗑️";
+            delIcon.addEventListener("click", () => deletePoint(p));
+            box.appendChild(delIcon);
+        }
+
+        // טקסט הכתובת
+        const addrText = document.createElement("div");
+        addrText.className = "route-address";
+        addrText.textContent = p.address;
+
+        // כפתור וייז - עם אייקון המותג (קובץ מקומי, עובד גם ללא אינטרנט)
+        const wazeBtn = document.createElement("button");
+        wazeBtn.className = "waze-btn";
+        wazeBtn.innerHTML = `
+            <img class="waze-icon" src="icons/waze.svg" alt="Waze" width="20" height="20">
+            <span>נווט בוויז</span>
+        `;
+        wazeBtn.addEventListener("click", () => {
+            window.open(`https://waze.com/ul?ll=${p.lat},${p.lon}&navigate=yes`, "_blank");
+        });
+
+        box.appendChild(addrText);
+        box.appendChild(wazeBtn);
+        wrapper.appendChild(box);
 
         routeList.appendChild(wrapper);
     });
 }
 
+//------------------------------------------------------
+// 9. חישוב המסלול (לחיצה ראשונה) - קורא את השדות ובונה את ה-state
+//------------------------------------------------------
+document.getElementById("drawRouteBtn").addEventListener("click", async () => {
+    const startInput = document.getElementById("startAddress");
+    const endInput   = document.getElementById("endAddress");
 
+    if (!startInput.value || !endInput.value) {
+        alert("יש למלא כתובת יציאה וכתובת חזרה");
+        return;
+    }
 
+    const start = await geocode(startInput);
+    const end   = await geocode(endInput);
 
+    if (!start || !end) {
+        alert("שגיאה בגיאוקוד של כתובת יציאה או חזרה");
+        return;
+    }
+
+    const addressInputs = [...document.querySelectorAll(".address")];
+    const stops = (await Promise.all(
+        addressInputs.map(input => input.value.trim() ? geocode(input) : null)
+    )).filter(x => x);
+
+    // בונים את ה-state עם תפקידים
+    routePoints = [
+        { ...start, role: "start" },
+        ...stops.map(s => ({ ...s, role: "stop" })),
+        { ...end, role: "end" }
+    ];
+
+    recomputeAndRender();
 });
 
 
