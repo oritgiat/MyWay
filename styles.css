@@ -1,226 +1,390 @@
-/* styles.css */
-/* כללית בעברית */
+/* styles.css - עיצוב אפליקציה מודרני, RTL, בשמירה על הצבעים (סגול + ירוק) */
+
+:root {
+    --purple: #7b68ee;          /* mediumslateblue - צבע ראשי */
+    --purple-dark: #5a48c9;
+    --purple-light: #e9e6fb;
+    --green: #4CAF50;           /* ירוק - נקודות/וייז */
+    --green-dark: #2e7d32;
+    --bg: #f4f3fb;
+    --card: #ffffff;
+    --text: #2b2b3a;
+    --muted: #8a8a9a;
+    --border: #e7e6f0;
+    --shadow: 0 8px 24px rgba(123, 104, 238, 0.12);
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.06);
+    --radius: 18px;
+    --radius-sm: 12px;
+}
+
+* {
+    box-sizing: border-box;
+}
+
 body {
-    font-family: Arial, sans-serif;
-    background-color: #f2f2f2;
-    color: #333;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background: linear-gradient(180deg, #efeefb 0%, var(--bg) 220px);
+    color: var(--text);
     margin: 0;
-    padding: 0 20px 40px 20px;
-    direction: rtl;           /* כיוון טקסט מימין לשמאל */
-    text-align: right;        /* טקסט מיושר לימין */
-}
-
-/* שדות כתובת */
-input[type="text"] {
-    padding: 8px 12px;
-    font-size: 16px;
-    border-radius: 5px;
-    border: 1px solid #ccc;
-    outline: none;
-    transition: border-color 0.2s;
-    direction: rtl;           /* טקסט בעברית */
-    text-align: right;        /* מיושר לימין */
-}
-
-/* autocomplete */
-.autocomplete-list {
-    position: absolute;
-    background-color: #fff;
-    border: 1px solid #ccc;
-    max-height: 180px;
-    overflow-y: auto;
-    width: 100%;
-    z-index: 1000;
-    border-radius: 5px;
-    direction: rtl;           /* תוצאות מיושרות לימין */
+    padding: 0 16px calc(40px + env(safe-area-inset-bottom)) 16px;
+    direction: rtl;
     text-align: right;
+    -webkit-font-smoothing: antialiased;
+    max-width: 640px;
+    margin-inline: auto;
 }
 
-.autocomplete-item {
-    padding: 8px 12px;
-    cursor: pointer;
-}
-
-/* רשימת המסלול - ריבועים */
-#routeList {
-    display: flex;
-    flex-direction: column;
-    gap: 10px; /* רווח בין הריבועים */
-    max-width: 600px;
-    margin: 10px auto;
-    padding: 0;
-    list-style: none; /* מסירים את הכדורים */
-}
-
-#routeList li {
-    background-color: #fff;
-    padding: 12px 15px;
-    border-radius: 8px;
-    border: 1px solid #ccc;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    direction: rtl;           /* מיושר לימין */
-    text-align: right;
-    font-weight: 500;
-    transition: background-color 0.2s, transform 0.2s;
-}
-
-#routeList li:hover {
-    background-color: #f0f8ff;
-    transform: translateX(3px);
-}
-
+/* ===== כותרת עליונה בסגנון אפליקציה ===== */
 h1 {
-    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-            direction: rtl; /* עברית מימין לשמאל */
-            text-align: center;
-            margin: 0;
-            padding: 20px;
-            color: mediumslateblue;
-            font-size: 2.5em;      
-            line-height: 1.2; 
-}
-h2 {
-    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-            direction: rtl; /* עברית מימין לשמאל */
-            margin: 0;
-            padding: 20px;
-            color: mediumslateblue;
-            line-height: 1.2; 
+    text-align: center;
+    color: #fff;
+    font-size: 1.9em;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    margin: 0 -16px 0 -16px;
+    padding: calc(24px + env(safe-area-inset-top)) 20px 42px 20px;
+    background: linear-gradient(135deg, var(--purple) 0%, var(--purple-dark) 100%);
+    border-radius: 0 0 28px 28px;
+    box-shadow: var(--shadow);
+    line-height: 1.2;
 }
 
 h3 {
-    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-    margin-top: 0.0001px;
-    font-size: 1em;      
-    color: mediumslateblue;
     text-align: center;
+    color: var(--purple-dark);
+    font-size: 0.95em;
+    font-weight: 500;
+    margin: -28px 0 24px 0;
+    background: #fff;
+    padding: 10px 18px;
+    border-radius: 999px;
+    box-shadow: var(--shadow-sm);
+    display: block;
+    width: fit-content;
+    margin-inline: auto;
+    position: relative;
+    z-index: 2;
 }
- .input-wrapper {
-            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-            margin-bottom: 15px;
-            color: mediumslateblue;
 
-        }
-/* עיצוב שדות כתובת */
+h2 {
+    color: var(--purple-dark);
+    font-size: 1.05em;
+    font-weight: 800;
+    letter-spacing: -0.2px;
+    margin: 26px 4px 14px 4px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* אייקון דגל עדין לפני הכותרת (במקום הפס הירוק) */
+h2::before {
+    content: "🚩";
+    font-size: 1em;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    background: var(--purple-light);
+    border-radius: 10px;
+    line-height: 1;
+}
+
+/* ===== כרטיס שדות הקלט ===== */
 .input-wrapper {
     display: flex;
     flex-direction: column;
-    margin-bottom: 15px;
+    background: var(--card);
+    padding: 14px 16px;
+    border-radius: var(--radius-sm);
+    box-shadow: var(--shadow-sm);
+    margin-bottom: 12px;
+    border: 1px solid var(--border);
 }
 
 .input-wrapper label {
-    margin-bottom: 5px;
-    font-weight: bold;
+    margin-bottom: 6px;
+    font-weight: 600;
+    font-size: 0.85em;
+    color: var(--purple-dark);
 }
 
-input[type="text"] {
-    padding: 8px 12px;
-    font-size: 16px;
-    border-radius: 5px;
-    border: 1px solid #ccc;
+input[type="text"],
+.address {
+    padding: 12px 14px;
+    font-size: 16px;              /* 16px מונע זום אוטומטי במובייל */
+    border-radius: var(--radius-sm);
+    border: 1.5px solid var(--border);
     outline: none;
-    transition: border-color 0.2s;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    direction: rtl;
+    text-align: right;
+    background: #fbfbfe;
+    width: 100%;
+    color: var(--text);
 }
 
-input[type="text"]:focus {
-    border-color: #3498db;
+input[type="text"]:focus,
+.address:focus {
+    border-color: var(--purple);
+    box-shadow: 0 0 0 4px var(--purple-light);
+    background: #fff;
 }
 
+input::placeholder {
+    color: var(--muted);
+}
+
+/* עצירות ביניים */
+#addresses-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+#addresses-container .address {
+    background: var(--card);
+    box-shadow: var(--shadow-sm);
+}
+
+/* ===== כפתורים ===== */
 button {
-    margin-right: 10px;
-    margin-top: 10px;
-    padding: 10px 20px;
+    margin-top: 12px;
+    padding: 14px 20px;
     font-size: 16px;
-    border: 20px black;
-    background-color:#fff;
-    color: black;
+    font-weight: 700;
+    font-family: inherit;
+    border: none;
+    border-radius: var(--radius-sm);
     cursor: pointer;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.2);
-    transition: background-color 0.2s;
-}
-
-button:hover {
-    background-color: mediumslateblue;
-}
-
-/* שדות autocomplete */
-.autocomplete-list {
-    position: absolute;
-    background-color: #fff;
-    border: 1px solid #ccc;
-    max-height: 180px;
-    overflow-y: auto;
+    transition: transform 0.12s, box-shadow 0.2s, background 0.2s;
     width: 100%;
-    z-index: 1000;
-    border-radius: 5px;
 }
 
-.autocomplete-item {
-    padding: 8px 12px;
-    cursor: pointer;
+button:active {
+    transform: scale(0.98);
 }
 
-.autocomplete-item:hover {
-    background-color: #f0f0f0;
+/* כפתור הוספת כתובת - משני */
+#addAddressBtn {
+    background: #fff;
+    color: var(--purple-dark);
+    border: 1.5px dashed var(--purple);
+    box-shadow: none;
 }
 
-/* מפת Leaflet */
-#map {
-    height: 400px;
-    width: 100%;
-    margin-top: 30px;
-    border-radius: 5px;
-    border: 1px solid #ccc;
+#addAddressBtn:hover {
+    background: var(--purple-light);
 }
 
-/* container לעצירות ביניים */
-#addresses-container input {
-    margin-top: 5px;
+/* כפתור חישוב מסלול - ראשי */
+#drawRouteBtn {
+    background: linear-gradient(135deg, var(--purple) 0%, var(--purple-dark) 100%);
+    color: #fff;
+    box-shadow: var(--shadow);
+}
+
+#drawRouteBtn:hover {
+    box-shadow: 0 10px 28px rgba(123, 104, 238, 0.35);
+}
+
+/* ===== רשימת המסלול ===== */
+#routeList {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    margin: 24px 0;
+    padding: 0;
+    list-style: none;
 }
 
 .route-wrapper {
     position: relative;
-    margin-bottom: 20px;
+    margin-bottom: 4px;
     text-align: center;
     direction: rtl;
 }
 
 .route-label {
-    font-size: 1em;
-    font-weight: bold;
-    color: #2e7d32; /* ירוק כהה */
-    margin-bottom: 4px;
+    font-size: 0.8em;
+    font-weight: 700;
+    color: var(--green-dark);
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
+/* חץ מודרני בין תחנות המסלול */
 .green-arrow {
-    font-size: 2em;
-    color: #4CAF50; /* ירוק */
-    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--green);
+    margin: 6px 0;
+    line-height: 0;
+    animation: arrow-bounce 1.6s ease-in-out infinite;
+}
+
+.green-arrow svg {
+    display: block;
+    filter: drop-shadow(0 2px 3px rgba(76, 175, 80, 0.35));
+}
+
+@keyframes arrow-bounce {
+    0%, 100% { transform: translateY(0); opacity: 0.85; }
+    50%      { transform: translateY(3px); opacity: 1; }
+}
+
+/* כיבוד העדפת המשתמש להפחתת תנועה */
+@media (prefers-reduced-motion: reduce) {
+    .green-arrow {
+        animation: none;
+    }
 }
 
 .route-item {
-    background: #ffffff;
-    border-radius: 14px;
-    padding: 8px;
-    width: 65%;
+    position: relative;
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    width: 100%;
+    max-width: 480px;
     margin: auto;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
-    font-size: 1.2em;
-    font-family: "Arimo", sans-serif;
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--border);
+    font-size: 1em;
+    font-weight: 600;
+    text-align: right;
+    transition: transform 0.15s, box-shadow 0.2s;
 }
 
-.waze-btn {
-    margin-top: 8px;
-   background-color:mediumslateblue;
-    color: black;
+.route-item:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow);
+}
+
+/* אייקון מחיקה קטן בפינת כרטיס התוצאה (רק עצירות ביניים) */
+.icon-btn.delete-icon {
+    position: absolute;
+    top: 10px;
+    left: 10px;               /* RTL - פינה שמאלית עליונה */
+    width: 30px;
+    height: 30px;
+    margin: 0;
+    padding: 0;
+    border-radius: 9px;
+    font-size: 0.85em;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     cursor: pointer;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.2);
-    border: none;
-    padding: 6px 10px;
-    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: #fafaff;
+    box-shadow: none;
+    transition: transform 0.12s, background 0.2s, border-color 0.2s;
+}
+
+.icon-btn.delete-icon:hover {
+    background: #ffe9e9;
+    border-color: #e57373;
+}
+
+.icon-btn.delete-icon:active {
+    transform: scale(0.9);
+}
+
+/* טקסט הכתובת בכרטיס התוצאה - רווח מהאייקון בצד שמאל */
+.route-address {
+    min-height: 24px;
+    display: flex;
+    align-items: center;
+    padding-left: 38px;
+}
+
+/* כפתור וויז - לבן עם מסגרת תכלת, כדי שאייקון וויז התכלת יבלוט */
+.waze-btn {
+    margin-top: 12px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: #fff;
+    color: #05a8e6;
+    border: 2px solid #33ccff;
+    padding: 9px 18px;
+    border-radius: 999px;
     cursor: pointer;
     font-size: 0.9em;
+    font-weight: 700;
+    box-shadow: 0 3px 10px rgba(5, 168, 230, 0.18);
+    width: auto;
+    transition: transform 0.12s, box-shadow 0.2s, background 0.2s;
 }
+
+.waze-btn .waze-icon {
+    flex: 0 0 auto;
+    display: block;
+}
+
+.waze-btn:active {
+    transform: scale(0.96);
+}
+
 .waze-btn:hover {
-    background: #fff; 
+    background: #f0fbff;
+    box-shadow: 0 5px 14px rgba(5, 168, 230, 0.28);
+}
+
+/* ===== מפה ===== */
+#map {
+    height: 45vh;
+    min-height: 320px;
+    width: 100%;
+    margin-top: 24px;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+    z-index: 1;
+}
+
+/* ===== autocomplete של גוגל ===== */
+.pac-container {
+    border-radius: var(--radius-sm);
+    box-shadow: var(--shadow);
+    border: none;
+    margin-top: 4px;
+    font-family: inherit;
+}
+
+.pac-item {
+    padding: 8px 12px;
+    cursor: pointer;
+    direction: rtl;
+    text-align: right;
+}
+
+/* autocomplete ישן (אם בשימוש) */
+.autocomplete-list {
+    position: absolute;
+    background: #fff;
+    border: 1px solid var(--border);
+    max-height: 180px;
+    overflow-y: auto;
+    width: 100%;
+    z-index: 1000;
+    border-radius: var(--radius-sm);
+    direction: rtl;
+    text-align: right;
+    box-shadow: var(--shadow);
+}
+
+.autocomplete-item {
+    padding: 10px 12px;
+    cursor: pointer;
+}
+
+.autocomplete-item:hover {
+    background: var(--purple-light);
 }
