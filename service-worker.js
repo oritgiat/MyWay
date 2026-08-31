@@ -1,6 +1,6 @@
 // service-worker.js
 // מטמון בסיסי כדי ש-MyWay ייחשב PWA תקין ויעבוד גם ללא רשת (קבצים מקומיים בלבד).
-const CACHE_NAME = "myway-cache-v20";
+const CACHE_NAME = "myway-cache-v21";
 
 // קבצים מקומיים בלבד. קבצים חיצוניים (Google/Leaflet) נטענים מהרשת.
 const APP_SHELL = [
@@ -19,7 +19,13 @@ self.addEventListener("install", (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => cache.addAll(APP_SHELL))
   );
-  self.skipWaiting();
+});
+
+// האזנה לבקשת הדף להשתלט מיד (מונע צורך ברענון כפול אחרי עדכון)
+self.addEventListener("message", (event) => {
+  if (event.data && event.data.type === "SKIP_WAITING") {
+    self.skipWaiting();
+  }
 });
 
 // הפעלה: ניקוי מטמונים ישנים

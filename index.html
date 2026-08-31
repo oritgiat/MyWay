@@ -53,11 +53,33 @@
 
     <script src="app.js" type="module"></script>
 
-    <!-- רישום ה-service worker (נדרש כדי שהאתר ייחשב PWA תקין) -->
+    <!-- רישום ה-service worker + רענון אוטומטי כשיש גרסה חדשה -->
     <script>
         if ("serviceWorker" in navigator) {
+            let refreshing = false;
+
+            // כשה-service worker החדש משתלט - מרעננים פעם אחת אוטומטית
+            navigator.serviceWorker.addEventListener("controllerchange", () => {
+                if (refreshing) return;
+                refreshing = true;
+                window.location.reload();
+            });
+
             window.addEventListener("load", () => {
                 navigator.serviceWorker.register("service-worker.js")
+                    .then(reg => {
+                        // בודקים אם יש עדכון ממתין
+                        reg.addEventListener("updatefound", () => {
+                            const newWorker = reg.installing;
+                            if (!newWorker) return;
+                            newWorker.addEventListener("statechange", () => {
+                                // גרסה חדשה הותקנה ויש כבר SW פעיל => לבקש ממנו להשתלט מיד
+                                if (newWorker.state === "installed" && navigator.serviceWorker.controller) {
+                                    newWorker.postMessage({ type: "SKIP_WAITING" });
+                                }
+                            });
+                        });
+                    })
                     .catch(err => console.warn("Service worker registration failed:", err));
             });
         }
