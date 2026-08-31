@@ -155,15 +155,53 @@ attachAutocomplete(document.getElementById("startAddress"));
 attachAutocomplete(document.getElementById("endAddress"));
 
 //------------------------------------------------------
-// 7. הוספת כתובת עצירה חדשה + autocomplete
+// 7. הוספת כתובת עצירה חדשה + autocomplete + שדה הערות
 //------------------------------------------------------
 document.getElementById("addAddressBtn").addEventListener("click", () => {
     const container = document.getElementById("addresses-container");
+
+    // עטיפה לכל עצירה: כתובת + כפתור הרחבה + הערות
+    const stopWrapper = document.createElement("div");
+    stopWrapper.className = "stop-block";
+
+    // שורת הכתובת עם חץ הרחבה
+    const addrRow = document.createElement("div");
+    addrRow.className = "address-row";
+
     const input = document.createElement("input");
     input.type = "text";
     input.className = "address";
     input.placeholder = "כתובת עצירה";
-    container.appendChild(input);
+
+    // כפתור חץ לפתיחת/סגירת ההערות
+    const toggleBtn = document.createElement("button");
+    toggleBtn.type = "button";
+    toggleBtn.className = "note-toggle";
+    toggleBtn.title = "הוסף הערה";
+    toggleBtn.setAttribute("aria-label", "הוסף הערה");
+    toggleBtn.innerHTML = `
+        <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+            <path d="M6 9l6 6 6-6" fill="none" stroke="currentColor"
+                  stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+    `;
+
+    const note = document.createElement("textarea");
+    note.className = "address-note";
+    note.rows = 2;
+    note.placeholder = "הערות (למשל: שם, קומה, קוד כניסה)";
+
+    // פתיחה/סגירה של ההערות
+    toggleBtn.addEventListener("click", () => {
+        const isOpen = stopWrapper.classList.toggle("note-open");
+        if (isOpen) note.focus();
+    });
+
+    addrRow.appendChild(input);
+    addrRow.appendChild(toggleBtn);
+    stopWrapper.appendChild(addrRow);
+    stopWrapper.appendChild(note);
+    container.appendChild(stopWrapper);
 
     attachAutocomplete(input);
     input.focus();
@@ -314,6 +352,16 @@ function renderRouteList(routeArr) {
         addrText.className = "route-address";
         addrText.textContent = p.address;
 
+        box.appendChild(addrText);
+
+        // הערת המשתמש (אם קיימת) - שם, קומה, קוד כניסה וכו'
+        if (p.note) {
+            const noteText = document.createElement("div");
+            noteText.className = "route-note";
+            noteText.textContent = p.note;
+            box.appendChild(noteText);
+        }
+
         // כפתור וייז - עם אייקון המותג (קובץ מקומי, עובד גם ללא אינטרנט)
         const wazeBtn = document.createElement("button");
         wazeBtn.className = "waze-btn";
@@ -323,7 +371,6 @@ function renderRouteList(routeArr) {
         `;
         wazeBtn.addEventListener("click", () => openWaze(p.lat, p.lon));
 
-        box.appendChild(addrText);
         box.appendChild(wazeBtn);
         wrapper.appendChild(box);
 
@@ -351,15 +398,24 @@ document.getElementById("drawRouteBtn").addEventListener("click", async () => {
         return;
     }
 
-    const addressInputs = [...document.querySelectorAll(".address")];
-    const stops = (await Promise.all(
-        addressInputs.map(input => input.value.trim() ? geocode(input) : null)
-    )).filter(x => x);
+    // עצירות ביניים: לכל שדה כתובת מלא, נגאוקד ונצרף את ההערה שלו
+    const addressInputs = [...document.querySelectorAll("#addresses-container .address")];
+    const stopResults = await Promise.all(addressInputs.map(async (input) => {
+        if (!input.value.trim()) return null;
+        const geo = await geocode(input);
+        if (!geo) return null;
+        // ההערה נמצאת ב-textarea שבתוך עטיפת ה-.stop-block (הקרובה ביותר)
+        const stopBlock = input.closest(".stop-block");
+        const noteEl = stopBlock ? stopBlock.querySelector(".address-note") : null;
+        const note = noteEl ? noteEl.value.trim() : "";
+        return { ...geo, note, role: "stop" };
+    }));
+    const stops = stopResults.filter(x => x);
 
-    // בונים את ה-state עם תפקידים
+    // בונים את ה-state עם תפקידים (הערות רק לעצירות ביניים)
     routePoints = [
         { ...start, role: "start" },
-        ...stops.map(s => ({ ...s, role: "stop" })),
+        ...stops,
         { ...end, role: "end" }
     ];
 
