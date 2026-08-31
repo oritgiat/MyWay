@@ -132,20 +132,113 @@ input[type="text"]:focus,
     background: #fff;
 }
 
-input::placeholder {
+input::placeholder,
+textarea::placeholder {
     color: var(--muted);
+}
+
+/* שורת הכתובת עם כפתור חץ ההרחבה */
+.address-row {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.address-row .address {
+    padding-left: 44px;          /* מקום לחץ בצד שמאל */
+}
+
+/* כפתור חץ קטן בתוך שדה הכתובת - פותח/סוגר הערות */
+.note-toggle {
+    position: absolute;
+    left: 6px;                   /* RTL - פינה שמאלית */
+    top: 50%;
+    transform: translateY(-50%);
+    width: 32px;
+    height: 32px;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    background: var(--purple-light);
+    color: var(--purple-dark);
+    border-radius: 8px;
+    cursor: pointer;
+    box-shadow: none;
+    transition: background 0.2s;
+}
+
+.note-toggle svg {
+    transition: transform 0.25s;
+}
+
+.note-toggle:hover {
+    background: #ddd7fb;
+}
+
+/* כשההערות פתוחות - החץ מסתובב כלפי מעלה */
+.stop-block.note-open .note-toggle svg {
+    transform: rotate(180deg);
+}
+
+/* שדה הערות - מקופל כברירת מחדל, נפתח בלחיצה על החץ */
+.address-note {
+    width: 100%;
+    padding: 0 14px;
+    font-size: 14px;
+    font-family: inherit;
+    line-height: 1.4;
+    border: none;
+    border-radius: var(--radius-sm);
+    outline: none;
+    resize: none;
+    direction: rtl;
+    text-align: right;
+    background: #f3f1fb;
+    color: var(--text);
+    box-sizing: border-box;
+
+    /* מצב מקופל */
+    max-height: 0;
+    opacity: 0;
+    margin-top: 0;
+    overflow: hidden;
+    transition: max-height 0.25s ease, opacity 0.2s, margin-top 0.25s, padding 0.25s;
+}
+
+/* מצב פתוח */
+.stop-block.note-open .address-note {
+    max-height: 120px;
+    opacity: 1;
+    margin-top: 8px;
+    padding: 10px 14px;
+    overflow: auto;
+    resize: vertical;
+}
+
+.address-note:focus {
+    background: #fff;
+    box-shadow: inset 0 0 0 1.5px var(--purple);
 }
 
 /* עצירות ביניים */
 #addresses-container {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 14px;
 }
 
 #addresses-container .address {
     background: var(--card);
     box-shadow: var(--shadow-sm);
+}
+
+/* עטיפת עצירה בודדת (כתובת + הערות) */
+.stop-block {
+    display: flex;
+    flex-direction: column;
 }
 
 /* ===== כפתורים ===== */
@@ -301,6 +394,20 @@ button:active {
     display: flex;
     align-items: center;
     padding-left: 38px;
+}
+
+/* הערת המשתמש בכרטיס התוצאה (שם, קומה, קוד כניסה) */
+.route-note {
+    margin-top: 8px;
+    padding: 8px 10px;
+    font-size: 0.85em;
+    font-weight: 500;
+    color: var(--purple-dark);
+    background: var(--purple-light);
+    border-radius: 10px;
+    white-space: pre-wrap;       /* שומר על שורות חדשות שהמשתמש הקליד */
+    text-align: right;
+    line-height: 1.4;
 }
 
 /* כפתור וויז - לבן עם מסגרת תכלת, כדי שאייקון וויז התכלת יבלוט */

@@ -1,6 +1,6 @@
 // service-worker.js
 // מטמון בסיסי כדי ש-MyWay ייחשב PWA תקין ויעבוד גם ללא רשת (קבצים מקומיים בלבד).
-const CACHE_NAME = "myway-cache-v13";
+const CACHE_NAME = "myway-cache-v19";
 
 // קבצים מקומיים בלבד. קבצים חיצוניים (Google/Leaflet) נטענים מהרשת.
 const APP_SHELL = [
