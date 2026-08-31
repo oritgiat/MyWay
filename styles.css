@@ -145,7 +145,7 @@ textarea::placeholder {
 }
 
 .address-row .address {
-    padding-left: 44px;          /* מקום לחץ בצד שמאל */
+    padding-left: 82px;          /* מקום לשני הכפתורים (חץ + X) בצד שמאל */
 }
 
 /* כפתור חץ קטן בתוך שדה הכתובת - פותח/סוגר הערות */
@@ -176,6 +176,38 @@ textarea::placeholder {
 
 .note-toggle:hover {
     background: #ddd7fb;
+}
+
+/* כפתור X להסרת עצירה מרשימת הקלט */
+.stop-remove {
+    position: absolute;
+    left: 42px;                  /* משמאל לחץ ההערות */
+    top: 50%;
+    transform: translateY(-50%);
+    width: 32px;
+    height: 32px;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    background: #fdeaea;
+    color: #d9534f;
+    border-radius: 8px;
+    font-size: 1em;
+    line-height: 1;
+    cursor: pointer;
+    box-shadow: none;
+    transition: background 0.2s, transform 0.12s;
+}
+
+.stop-remove:hover {
+    background: #f8d7d7;
+}
+
+.stop-remove:active {
+    transform: translateY(-50%) scale(0.9);
 }
 
 /* כשההערות פתוחות - החץ מסתובב כלפי מעלה */

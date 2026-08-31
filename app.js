@@ -186,6 +186,15 @@ document.getElementById("addAddressBtn").addEventListener("click", () => {
         </svg>
     `;
 
+    // כפתור X להסרת העצירה מרשימת הקלט
+    const removeBtn = document.createElement("button");
+    removeBtn.type = "button";
+    removeBtn.className = "stop-remove";
+    removeBtn.title = "הסר עצירה";
+    removeBtn.setAttribute("aria-label", "הסר עצירה");
+    removeBtn.textContent = "✕";
+    removeBtn.addEventListener("click", () => removeStopBlock(stopWrapper));
+
     const note = document.createElement("textarea");
     note.className = "address-note";
     note.rows = 2;
@@ -199,6 +208,7 @@ document.getElementById("addAddressBtn").addEventListener("click", () => {
 
     addrRow.appendChild(input);
     addrRow.appendChild(toggleBtn);
+    addrRow.appendChild(removeBtn);
     stopWrapper.appendChild(addrRow);
     stopWrapper.appendChild(note);
     container.appendChild(stopWrapper);
@@ -286,12 +296,31 @@ function openWaze(lat, lon) {
 }
 
 //------------------------------------------------------
-// מחיקת עצירת ביניים מרשימת התוצאות ומחשב מחדש (יציאה/סיום לא נמחקים)
+// מחיקת עצירת ביניים מרשימת התוצאות - מוחקת גם את שדה הקלט המקושר
 //------------------------------------------------------
 function deletePoint(point) {
     if (point.role !== "stop") return;
+    // מסירים גם את שדה הקלט (.stop-block) שקושר לנקודה, אם קיים
+    if (point.el && point.el.parentElement) {
+        point.el.remove();
+    }
     routePoints = routePoints.filter(p => p !== point);
     recomputeAndRender();
+}
+
+//------------------------------------------------------
+// הסרת עצירה מרשימת הקלט (כפתור X). אם המסלול כבר חושב -
+// מסירים גם מהתוצאות ומחשבים מחדש כדי לשמור על סנכרון.
+//------------------------------------------------------
+function removeStopBlock(stopBlock) {
+    // אם הנקודה קיימת ב-state של המסלול המחושב - נסיר גם משם
+    const linked = routePoints.find(p => p.el === stopBlock);
+    stopBlock.remove();
+
+    if (linked) {
+        routePoints = routePoints.filter(p => p !== linked);
+        recomputeAndRender();
+    }
 }
 
 //------------------------------------------------------
@@ -408,7 +437,8 @@ document.getElementById("drawRouteBtn").addEventListener("click", async () => {
         const stopBlock = input.closest(".stop-block");
         const noteEl = stopBlock ? stopBlock.querySelector(".address-note") : null;
         const note = noteEl ? noteEl.value.trim() : "";
-        return { ...geo, note, role: "stop" };
+        // el = הפניה לשדה הקלט, לצורך סנכרון מחיקה בין הרשימות
+        return { ...geo, note, role: "stop", el: stopBlock };
     }));
     const stops = stopResults.filter(x => x);
 
