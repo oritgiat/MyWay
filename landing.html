@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="he">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>SmartRoute - מסלול חכם | תכנון המסלול הקצר ביותר</title>
+    <meta name="description" content="SmartRoute מחשב את הסדר האופטימלי לעבור בין כל העצירות שלך - למשלוחים, הפצה וטיולים. חוסך זמן, דלק וקילומטרים.">
+
+    <!-- Open Graph לשיתוף ברשתות -->
+    <meta property="og:title" content="SmartRoute - מסלול חכם">
+    <meta property="og:description" content="תכנון המסלול הקצר ביותר בין כל העצירות שלך. למשלוחים, הפצה וטיולים.">
+    <meta property="og:type" content="website">
+
+    <style>
+        :root {
+            --purple: #7b68ee;
+            --purple-dark: #5a48c9;
+            --purple-light: #e9e6fb;
+            --cyan: #33ccff;
+            --cyan-dark: #05a8e6;
+            --text: #2b2b3a;
+            --muted: #6b6b7b;
+            --bg: #f4f3fb;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+            direction: rtl;
+            text-align: right;
+            color: var(--text);
+            background: var(--bg);
+            line-height: 1.6;
+        }
+        .container { max-width: 1000px; margin: 0 auto; padding: 0 20px; }
+
+        /* ===== Hero ===== */
+        .hero {
+            background: linear-gradient(180deg, var(--purple-light) 0%, #f7f6fd 70%, var(--bg) 100%);
+            color: var(--text);
+            padding: 60px 0 70px;
+            text-align: center;
+        }
+        .hero h1 { color: var(--purple-dark) !important; }
+        .hero .tagline { color: var(--muted) !important; }
+        .hero .logo-badge {
+            width: 96px; height: 96px;
+            margin: 0 auto 20px;
+            background: #fff;
+            border-radius: 24px;
+            display: flex; align-items: center; justify-content: center;
+            overflow: hidden;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.18);
+        }
+        .hero .logo-badge img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .hero h1 {
+            font-size: 2.6em;
+            font-weight: 800;
+            letter-spacing: -1px;
+            margin-bottom: 12px;
+        }
+        .hero .tagline {
+            font-size: 1.3em;
+            font-weight: 500;
+            opacity: 0.95;
+            max-width: 620px;
+            margin: 0 auto 32px;
+        }
+        .cta-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: linear-gradient(135deg, var(--purple) 0%, var(--purple-dark) 100%);
+            color: #fff;
+            font-size: 1.15em;
+            font-weight: 700;
+            padding: 16px 36px;
+            border-radius: 999px;
+            text-decoration: none;
+            box-shadow: 0 10px 26px rgba(123,104,238,0.35);
+            transition: transform 0.15s, box-shadow 0.2s;
+        }
+        .cta-btn:hover { transform: translateY(-2px); box-shadow: 0 14px 32px rgba(123,104,238,0.45); }
+
+        /* ===== Problem ===== */
+        .section { padding: 60px 0; }
+        .section h2 {
+            font-size: 1.9em;
+            color: var(--purple-dark);
+            text-align: center;
+            margin-bottom: 12px;
+        }
+        .section .sub {
+            text-align: center;
+            color: var(--muted);
+            max-width: 640px;
+            margin: 0 auto 44px;
+            font-size: 1.1em;
+        }
+
+        /* ===== Features ===== */
+        .features {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 18px;
+        }
+        @media (max-width: 700px) {
+            .features { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 420px) {
+            .features { grid-template-columns: 1fr; }
+        }
+        .feature {
+            background: #fff;
+            border-radius: 20px;
+            padding: 28px 24px;
+            box-shadow: 0 4px 18px rgba(123,104,238,0.10);
+            transition: transform 0.15s;
+        }
+        .feature:hover { transform: translateY(-4px); }
+        .feature .icon {
+            width: 56px; height: 56px;
+            background: var(--purple-light);
+            border-radius: 16px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 28px;
+            margin-bottom: 16px;
+        }
+        .feature h3 { font-size: 1.2em; margin-bottom: 8px; color: var(--purple-dark); }
+        .feature p { color: var(--muted); }
+
+        /* ===== Screenshots ===== */
+        .screenshots {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 24px;
+        }
+        .phone {
+            background: #1a1a2e;
+            border-radius: 28px;
+            padding: 8px;
+            box-shadow: 0 12px 34px rgba(90,72,201,0.22);
+            max-width: 240px;
+            flex: 1 1 200px;
+        }
+        /* עוטף שחותך את שורת הסטטוס העליונה (שעה/סוללה) של צילום המסך */
+        .phone .shot {
+            border-radius: 20px;
+            overflow: hidden;
+            display: block;
+        }
+        .phone .shot img {
+            width: 100%;
+            display: block;
+            /* מזיז את התמונה מעט כלפי מעלה כדי להסתיר את פס הסטטוס */
+            margin-top: -6%;
+        }
+
+        /* ===== Audience ===== */
+        .audience {
+            background: #fff;
+            border-radius: 28px;
+            padding: 44px 32px;
+            text-align: center;
+            box-shadow: 0 4px 18px rgba(123,104,238,0.10);
+        }
+        .audience-tags {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 12px;
+            margin-top: 24px;
+        }
+        .tag {
+            background: var(--purple-light);
+            color: var(--purple-dark);
+            font-weight: 700;
+            padding: 10px 22px;
+            border-radius: 999px;
+            font-size: 1.05em;
+        }
+
+        /* ===== Final CTA ===== */
+        .final-cta {
+            background: linear-gradient(135deg, var(--cyan) 0%, var(--cyan-dark) 100%);
+            color: #fff;
+            text-align: center;
+            padding: 60px 20px;
+            border-radius: 32px;
+            margin: 40px 20px 60px;
+        }
+        .final-cta h2 { color: #fff; font-size: 2em; margin-bottom: 14px; }
+        .final-cta p { opacity: 0.95; margin-bottom: 28px; font-size: 1.15em; }
+        .final-cta .cta-btn { color: var(--cyan-dark); }
+
+        /* ===== Footer ===== */
+        footer {
+            text-align: center;
+            color: var(--muted);
+            padding: 30px 20px 50px;
+            font-size: 0.9em;
+        }
+        footer a { color: var(--purple); text-decoration: none; }
+
+        @media (max-width: 600px) {
+            .hero h1 { font-size: 2em; }
+            .hero .tagline { font-size: 1.1em; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- HERO -->
+    <section class="hero">
+        <div class="container">
+            <div class="logo-badge"><img src="icons/icon-512.png" alt="SmartRoute"></div>
+            <h1>SmartRoute</h1>
+            <p class="tagline">
+                תכנון המסלול הקצר והחכם ביותר בין כל העצירות שלך.
+                חוסך לך זמן, דלק וקילומטרים מיותרים.
+            </p>
+            <a href="#download" class="cta-btn">
+                <span>הורידו עכשיו</span>
+                <span>←</span>
+            </a>
+        </div>
+    </section>
+
+    <!-- PROBLEM -->
+    <section class="section">
+        <div class="container">
+            <h2>הרבה עצירות? סדר אותן חכם.</h2>
+            <p class="sub">
+                כשיש לך כמה יעדים ליום - משלוחים, סידורים או טיול - הסדר שבו תעבור ביניהם
+                קובע כמה זמן ודלק תבזבז. SmartRoute מחשב עבורך את הסדר האופטימלי בלחיצה אחת.
+            </p>
+        </div>
+    </section>
+
+    <!-- FEATURES -->
+    <section class="section" style="padding-top:0;">
+        <div class="container">
+            <div class="features">
+                <div class="feature">
+                    <div class="icon">🧭</div>
+                    <h3>מסלול אופטימלי</h3>
+                    <p>מזין את כל העצירות, והאפליקציה מסדרת אותן בסדר הקצר ביותר לנסיעה.</p>
+                </div>
+                <div class="feature">
+                    <div class="icon">📍</div>
+                    <h3>חיפוש כתובות ומקומות</h3>
+                    <p>חיפוש חכם בעברית - כתובות, עסקים ותחנות בכל רחבי ישראל.</p>
+                </div>
+                <div class="feature">
+                    <div class="icon">🚗</div>
+                    <h3>ניווט ישיר בוויז</h3>
+                    <p>בלחיצה אחת פותחים ניווט בוויז לכל עצירה - בלי להעתיק כתובות.</p>
+                </div>
+                <div class="feature">
+                    <div class="icon">📝</div>
+                    <h3>הערות לכל עצירה</h3>
+                    <p>מוסיפים שם, קומה או קוד כניסה - כל מה שעוזר לזהות את המשלוח.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SCREENSHOTS -->
+    <section class="section" style="padding-top:0;">
+        <div class="container">
+            <h2>ככה זה נראה</h2>
+            <p class="sub">פשוט, נקי, ובעברית - בדיוק מה שצריך בדרכים.</p>
+            <div class="screenshots">
+                <div class="phone"><span class="shot"><img src="icons/screen1.jpg" alt="מסך ראשי - הזנת כתובות"></span></div>
+                <div class="phone"><span class="shot"><img src="icons/screen2.jpg" alt="רשימת המסלול עם הערות"></span></div>
+                <div class="phone"><span class="shot"><img src="icons/screen3.jpg" alt="המסלול על המפה"></span></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- AUDIENCE -->
+    <section class="section">
+        <div class="container">
+            <div class="audience">
+                <h2>למי זה מתאים?</h2>
+                <p class="sub" style="margin-bottom:0;">
+                    לכל מי שעובר בין כמה נקודות ורוצה לחסוך זמן ודלק.
+                </p>
+                <div class="audience-tags">
+                    <span class="tag">🚚 נהגי משלוחים</span>
+                    <span class="tag">📦 אנשי הפצה</span>
+                    <span class="tag">💼 מכירות שטח</span>
+                    <span class="tag">🗺️ מטיילים</span>
+                    <span class="tag">✅ סידורים יומיים</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FINAL CTA -->
+    <section class="final-cta" id="download">
+        <h2>מוכנים לחסוך זמן בדרכים?</h2>
+        <p>הורידו את SmartRoute והתחילו לתכנן מסלולים חכמים כבר היום.</p>
+        <!-- החליפו את הקישור בכתובת האפליקציה בגוגל פליי לאחר הפרסום -->
+        <a href="#" class="cta-btn">
+            <span>הורדה מ-Google Play</span>
+            <span>←</span>
+        </a>
+    </section>
+
+    <!-- FOOTER -->
+    <footer>
+        <p>
+            SmartRoute - מסלול חכם &nbsp;•&nbsp;
+            <a href="privacy.html">מדיניות פרטיות</a>
+        </p>
+        <p style="margin-top:8px;">© 2026 SmartRoute. כל הזכויות שמורות.</p>
+    </footer>
+
+</body>
+</html>
