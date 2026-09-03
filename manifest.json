@@ -1,6 +1,6 @@
 {
-  "name": "MyWay - מסלול חכם",
-  "short_name": "MyWay",
+  "name": "SmartRoute - מסלול חכם",
+  "short_name": "SmartRoute",
   "description": "תכנון המסלול הקצר ביותר בין כמה עצירות - למשלוחים, הפצה וטיולים. בונה את הסדר האופטימלי עם ניווט ישיר בוויז.",
   "lang": "he",
   "dir": "rtl",
